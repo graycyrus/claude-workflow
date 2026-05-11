@@ -128,6 +128,13 @@ Determine automatically:
 - Feature → `enhancement` label
 - Additional labels if obvious from the repo's label set
 
+### When to ask more questions
+
+Before presenting the draft, ask if:
+- **Scope is ambiguous** — "Should this also cover X, or keep it narrow?"
+- **Multiple possible causes** — "I found two potential root causes, which seems right?"
+- **Overlapping issues exist** — "Issue #N covers something similar — merge, reference, or separate?"
+
 ### Ask before creating
 
 Present the draft and ask:
@@ -159,7 +166,10 @@ gh issue create --repo $REPO \
 - [ ] No duplicate of an existing open issue
 - [ ] Related issues linked in the body
 
-Share the issue URL with the user after creating.
+After creating:
+- Share the issue URL with the user
+- If priority labels exist on the repo, apply them
+- If the issue references other issues, add cross-links in those issues
 
 ---
 
@@ -177,7 +187,7 @@ Signs to split:
 
 1. Propose the split — list sub-issues with titles and one-line scopes
 2. User confirms or adjusts
-3. Create sub-issues as standalone issues
+3. Create sub-issues as standalone issues (inherit assignee from parent unless user says otherwise)
 4. Close the parent with a comment linking to the new issues
 
 ### Before creating sub-issues
@@ -187,7 +197,7 @@ Check for duplicates:
 gh issue list --repo $REPO --state open --limit 100 --json number,title
 ```
 
-If a sub-issue duplicates an existing issue, update the existing one instead.
+If a sub-issue duplicates an existing issue, update the existing one instead and close the duplicate with a reference link. Do not create redundant issues.
 
 ### When NOT to split
 

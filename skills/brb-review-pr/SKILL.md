@@ -27,6 +27,15 @@ gh pr list --repo $REPO --state open
 
 Show the list and let the user pick. Exclude drafts by default.
 
+### Check out locally
+
+```bash
+gh pr checkout <PR> -b pr/<PR>
+git branch --show-current
+```
+
+Working tree must be clean. If dirty, **STOP** — never stash or discard.
+
 ---
 
 ## Phase 1: Gates (BLOCKING)
@@ -94,7 +103,7 @@ These steps gather context. Their output feeds into the review.
 
 Look at the diff and categorize files by area (backend, frontend, tests, CI, config, etc.).
 
-If the project has a `CLAUDE.md`, read it and pull relevant rules for each area into a checklist. If not, use general best practices for the detected tech stack.
+If the project has a `CLAUDE.md`, read it and pull relevant rules for each area into a targeted checklist. For each area touched by the PR, list the specific rules that apply. If no `CLAUDE.md` exists, use general best practices for the detected tech stack.
 
 ### Step 7: Read surrounding code
 
@@ -121,15 +130,28 @@ Summarize what they already flagged to avoid duplication.
 Based on what changed, run applicable checks:
 
 **Dependencies changed** (lockfiles, package.json, Cargo.toml):
-- Check for new deps: actively maintained? License compatible? Large dependency tree?
+- Diff the manifest to see what was added/removed
+- For each new dep: Is it actively maintained? (check last publish date) License compatible? Large dependency tree? Is it a devDependency or production dependency?
+- Run available audit tools:
+  ```bash
+  command -v cargo &>/dev/null && cargo audit 2>/dev/null
+  [ -f package.json ] && $PKG audit 2>/dev/null
+  ```
 
-**Logic changed**:
-- Are there tests for new logic? Are existing tests updated for behavior changes?
-- Will the project's coverage gate pass?
+**Logic changed** (new functions, modified behavior):
+- **New logic without tests**: For each new function/component, is there a corresponding test?
+- **Modified logic without updated tests**: Do existing tests still match the new behavior? Are there stale assertions?
+- **Coverage gate**: If the project enforces coverage thresholds on changed lines, will this pass?
+- Check for test files in the diff: `gh pr diff <PR> --repo $REPO --stat | grep -E '\.test\.|tests/'`
 
 **Exports/signatures changed**:
-- Find all callers/importers of changed functions/types
-- Are all consumers updated?
+- For each changed exported function/type, find all callers:
+  ```bash
+  grep -rn "functionName" src/ app/src/ --include='*.ts' --include='*.tsx' --include='*.rs'
+  ```
+- Are all importers updated? Were default values added for backward compat?
+- For state shape changes (Redux, context, etc.): Is persistence config updated? Migrations for existing data?
+- For RPC/API changes: Are all clients updated? Are E2E tests updated?
 
 ---
 
@@ -137,7 +159,25 @@ Based on what changed, run applicable checks:
 
 ### Step 10: Produce CodeRabbit-style review
 
-Read every changed file in full (not just hunks). Then produce a structured review:
+Read every changed file **in full** (not just hunks — context matters). For new files, read siblings to learn local conventions.
+
+Analyze against these axes:
+- **Correctness** — logic bugs, off-by-one, null/undefined, async/await misuse, race conditions, error propagation
+- **Project standards** — rules from CLAUDE.md checklist built in Step 6
+- **Testing** — new behavior ships with tests, behavior over implementation, no real network, no time flakes
+- **Debug logging** — entry/exit on new flows, branches, retries, state transitions; grep-friendly prefixes; no secrets/PII
+- **Security** — credentials, command injection, SQL injection, path traversal, XSS, secret files (.env, *.key), validation at boundaries
+- **Design / code quality** — dead code, commented-out blocks, unexplained TODOs, over-abstraction, duplication
+- **UX / UI** (if frontend) — accessibility, keyboard nav, loading/error/empty states, mobile responsiveness
+- **Documentation** — do code comments/docs match new behavior?
+
+For each finding, tag with:
+- **Severity**: `blocker` (must fix), `major` (should fix), `minor`/`nitpick` (optional)
+- **Confidence**: `high` / `medium` / `low`
+
+Drop `low`-confidence `minor` items — they're noise.
+
+Then produce a structured review:
 
 ````markdown
 # PR #<N> — <title>
@@ -150,6 +190,9 @@ Read every changed file in full (not just hunks). Then produce a structured revi
 | File | Summary |
 | --- | --- |
 | `path/to/file` | <1-line summary> |
+
+## Sequence of changes (if useful)
+<Optional: mermaid sequence/flow diagram if the PR touches a multi-step flow. Omit for simple PRs.>
 
 ## Actionable comments (<count>)
 
@@ -183,8 +226,11 @@ Read every changed file in full (not just hunks). Then produce a structured revi
 ## Questions for the author (<count>)
 - `path/to/file:line` — <question>
 
+## Outside the diff
+<Anything noticed in surrounding code that isn't in the diff but is adjacent/relevant. Omit if nothing.>
+
 ## Verified / looks good
-- <Things explicitly checked and found correct>
+- <Things explicitly checked and found correct — signals the review was thorough>
 
 ---
 **Reply with one of:**
@@ -216,26 +262,36 @@ Once the user confirms which items to apply:
    - `fix(<area>): <what>` for bugs
    - `refactor(<area>): <what>` for non-behavior changes
    - `test(<area>): <what>` for tests
+   - `docs(<area>): <what>` for documentation
 4. Skip anything the user declined
+5. Don't expand scope beyond what was approved
 
 ### Step 12: Run quality suite
 
 Auto-detect and run checks:
 
+Skip suites clearly unrelated to the diff; always run formatters and typecheck/lint.
+
 ```bash
-# JS/TS
+# JS/TS (if frontend files changed)
 $PKG run typecheck 2>/dev/null
 $PKG run lint 2>/dev/null
 $PKG run format 2>/dev/null
+$PKG run test:unit 2>/dev/null || $PKG run test 2>/dev/null
 
-# Rust
-[ -f Cargo.toml ] && cargo fmt --all && cargo check
+# Rust (if Rust files changed — check all Cargo.toml manifests)
+for manifest in $(find . -name Cargo.toml -not -path '*/vendor/*' -not -path '*/target/*'); do
+  cargo fmt --manifest-path "$manifest" --all
+  cargo check --manifest-path "$manifest"
+  cargo test --manifest-path "$manifest"
+done
 
 # Python
 [ -f pyproject.toml ] && command -v ruff &>/dev/null && ruff check --fix .
+[ -f pyproject.toml ] && command -v pytest &>/dev/null && pytest
 
 # Go
-[ -f go.mod ] && go vet ./...
+[ -f go.mod ] && go vet ./... && go test ./...
 ```
 
 Fix any issues, commit formatter output separately (`chore: apply formatting`).
@@ -279,6 +335,10 @@ Ask the user:
 
 - **Never apply changes before user confirms** — review is the deliverable, code changes come after sign-off
 - **Never** push to the default branch, force-push, skip hooks, or amend published commits
-- **Never** commit files that could contain secrets
-- If the working tree is dirty at start, **STOP** — don't stash
-- Keep the review honest — don't pad with invented issues
+- **Never** commit files that could contain secrets (`.env`, `*.key`)
+- **Never** `--strategy=ours/theirs` or `rebase --skip` — understand both sides of conflicts
+- If the working tree is dirty at start, **STOP** — don't stash or discard
+- If tests fail due to flakiness, re-run once; if still failing, report rather than loop
+- Stay on the PR branch — never accidentally commit to the default branch
+- Fork/cross-repo PRs: review freely, but if you don't have push access, report that commits are local and provide instructions for the author
+- Keep the review honest — don't pad with invented issues to look thorough. If the PR is clean, say so.
