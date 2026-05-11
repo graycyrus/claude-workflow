@@ -1,0 +1,76 @@
+---
+description: Run all quality checks for the current project — typecheck, lint, format, build, and Rust checks. Auto-detects available commands.
+allowed-tools: Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(cargo *) Bash(node *) Bash(cat *)
+---
+
+# Cross-Check
+
+Run all available quality checks for the current project. Auto-detects what's available.
+
+## Detect package manager
+
+```bash
+if [ -f pnpm-lock.yaml ]; then PKG=pnpm; elif [ -f yarn.lock ]; then PKG=yarn; else PKG=npm; fi
+```
+
+## Run checks in order
+
+### 1. TypeScript / JavaScript checks
+
+Detect and run available scripts from `package.json`:
+
+```bash
+# Check which scripts exist
+node -e "
+const p = require('./package.json');
+const s = p.scripts || {};
+const checks = ['typecheck', 'lint', 'format:check', 'build'];
+checks.forEach(c => { if (s[c]) console.log(c); });
+" 2>/dev/null
+```
+
+Run each detected check:
+
+- **Typecheck**: `$PKG run typecheck` — must pass with zero errors
+- **Lint**: `$PKG run lint` — fix all errors. If auto-fixable: `$PKG run lint -- --fix`
+- **Format check**: `$PKG run format:check` — if it fails, run `$PKG run format` then re-check
+- **Build**: `$PKG run build` — must complete without errors
+
+### 2. Rust checks (if Cargo.toml exists)
+
+```bash
+if [ -f Cargo.toml ]; then
+  cargo fmt --all --check
+  cargo check
+fi
+```
+
+If there's a secondary Cargo.toml (e.g. in a Tauri app):
+```bash
+# Check for nested Rust projects
+find . -name Cargo.toml -not -path ./Cargo.toml -not -path '*/vendor/*' -not -path '*/target/*' 2>/dev/null
+```
+
+Run `cargo fmt --check` and `cargo check` for each.
+
+### 3. Completeness grep
+
+If the task involved removing or replacing something, verify none remain:
+
+```bash
+# Example: verify a removed pattern is fully gone
+# grep -rn 'pattern' src/ --include='*.ts' --include='*.tsx' | grep -v node_modules | grep -v .test.
+```
+
+## When to run what
+
+| Scenario | Minimum checks |
+|----------|---------------|
+| TypeScript-only change | typecheck, lint, format |
+| Component/UI change | typecheck, lint, format, build |
+| Rust change | cargo check, cargo fmt |
+| Cross-stack change | All of the above |
+
+## If checks fail
+
+Fix the issues, don't just report them. After fixing, re-run the failing check to confirm it passes.
