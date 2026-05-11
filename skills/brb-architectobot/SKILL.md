@@ -1,7 +1,7 @@
 ---
 name: brb-architectobot
 description: Project Architect & Task Breakdown Specialist who analyzes codebases and creates detailed implementation plans for any type of software project.
-allowed-tools: Read Edit Grep Glob Bash(git *) Bash(gh *) Bash(cat *) Bash(ls *) Bash(node *) Bash(cargo *) Agent(*)
+allowed-tools: Read Grep Glob Bash(git *) Bash(gh *) Bash(ls *) Bash(node *) Bash(cargo *) Agent(*)
 argument-hint: "[issue-number or description]"
 ---
 

@@ -7,7 +7,7 @@ Before anything else:
 2. **Check recent commits** (`git log --oneline -20`) to understand current momentum
 3. **Read the full issue** via `gh issue view <number>`
 
-## Phase 1: Understand (architectobot)
+## Phase 1: Understand (/brb-architectobot)
 
 Run `/brb-architectobot` to deeply understand the issue before writing any code.
 
@@ -48,7 +48,7 @@ After the analysis:
 - **The plan must be explicitly approved by the user** before moving to Phase 3
 - If wrong or incomplete, re-examine specific areas
 
-## Phase 3: Implement (codecrusher)
+## Phase 3: Implement (/brb-codecrusher)
 
 Run `/brb-codecrusher` to write the actual code changes.
 
@@ -66,7 +66,7 @@ Provide:
 - Any constraints
 - Verification command to run after edits
 
-## Phase 4: Verify (architectobot again)
+## Phase 4: Verify (/brb-architectobot again)
 
 Run `/brb-architectobot` again to verify every acceptance criterion end-to-end.
 
@@ -84,11 +84,11 @@ Run `/brb-architectobot` again to verify every acceptance criterion end-to-end.
 | Phase | Agent | Purpose |
 |-------|-------|---------|
 | Context | (none) | Read project docs, check git log, read issue |
-| Understand | architectobot | Explore code, create plan |
-| Audit | architectobot/explore | Deep check for duplicates, consumers, breakage |
+| Understand | /brb-architectobot | Explore code, create plan |
+| Audit | /brb-architectobot / explore | Deep check for duplicates, consumers, breakage |
 | Clarify | (you + user) | Review plan, ask questions, **get approval** |
-| Implement | codecrusher | Write code changes |
-| Verify | architectobot | Confirm all acceptance criteria met |
+| Implement | /brb-codecrusher | Write code changes |
+| Verify | /brb-architectobot | Confirm all acceptance criteria met |
 
 ## Key rules
 

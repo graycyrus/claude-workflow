@@ -116,5 +116,5 @@ else
   echo "Done! Open Claude Code and try: /brb-workflow"
   echo ""
   echo "To update:  run /brb-update-workflow in Claude Code"
-  echo "To uninstall: rm -rf $TARGET/{$(echo $SKILLS_LIST | tr ' ' ',')}"
+  echo "To uninstall: rm -rf $TARGET/{$(echo "$SKILLS_LIST" | tr ' ' ',')}"
 fi

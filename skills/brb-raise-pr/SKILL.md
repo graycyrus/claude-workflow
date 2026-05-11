@@ -1,7 +1,7 @@
 ---
 name: brb-raise-pr
 description: Commit changes, merge the default branch, push, and create a draft PR. Handles conflict resolution and proper PR formatting.
-allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *)
+allowed-tools: Read Grep Glob Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *)
 argument-hint: "[issue-number]"
 ---
 

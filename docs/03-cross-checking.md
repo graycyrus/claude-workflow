@@ -58,6 +58,31 @@ grep -rn 'pattern' src/ --include='*.ts' --include='*.tsx' | grep -v node_module
 
 Empty output = all clear.
 
+### 7. Rust checks (if Cargo.toml exists)
+
+```bash
+cargo fmt --all --check
+cargo check
+```
+
+### 8. Python checks (if pyproject.toml or setup.py exists)
+
+```bash
+ruff check .          # linting
+mypy .                # type checking
+pytest                # tests
+```
+
+Only run the tools that are installed in the project.
+
+### 9. Go checks (if go.mod exists)
+
+```bash
+go vet ./...
+go test ./...
+golangci-lint run     # if installed
+```
+
 ## When to run what
 
 | Scenario | Minimum checks |
@@ -65,4 +90,6 @@ Empty output = all clear.
 | TypeScript-only change | typecheck, lint, format |
 | Component/UI change | typecheck, lint, format, build |
 | Rust change | cargo check, cargo fmt |
-| Cross-stack change | All of the above |
+| Python change | ruff, mypy, pytest |
+| Go change | go vet, go test |
+| Cross-stack change | All applicable checks above |

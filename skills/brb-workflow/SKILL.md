@@ -71,7 +71,7 @@ If rebase has conflicts, **STOP and ask the user**.
 MAIN_REPO=$(pwd)
 
 # Convention: ../<repo-short>-<issue-number>
-WORKTREE_DIR=../$(basename $MAIN_REPO)-<issue-number>
+WORKTREE_DIR=../$(basename "$MAIN_REPO")-<issue-number>
 git worktree add $WORKTREE_DIR -b <type>/short-description
 
 cd $WORKTREE_DIR

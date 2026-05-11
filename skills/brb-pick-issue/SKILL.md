@@ -74,7 +74,7 @@ gh issue list --repo $REPO --assignee $GH_USER --state open
 
 ```bash
 MAIN_REPO=$(pwd)
-WORKTREE_DIR=../$(basename $MAIN_REPO)-<issue-number>
+WORKTREE_DIR=../$(basename "$MAIN_REPO")-<issue-number>
 git worktree add $WORKTREE_DIR -b <type>/short-description
 cd $WORKTREE_DIR
 git submodule update --init --recursive

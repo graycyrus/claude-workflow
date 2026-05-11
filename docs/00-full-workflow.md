@@ -107,7 +107,7 @@ Before implementation, read project instructions and recent history:
 
 ---
 
-## Step 2: Understand with architectobot
+## Step 2: Understand with /brb-architectobot
 
 Run `/brb-architectobot` to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
 
@@ -130,7 +130,7 @@ Revise the plan based on findings before presenting to the user.
 
 ---
 
-## Step 3: Implement with codecrusher
+## Step 3: Implement with /brb-codecrusher
 
 Run `/brb-codecrusher` to write the code changes per the approved plan.
 
@@ -138,7 +138,7 @@ See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
 ---
 
-## Step 4: Verify with architectobot
+## Step 4: Verify with /brb-architectobot
 
 Run `/brb-architectobot` again to verify every acceptance criterion from the issue is met. Fix anything flagged.
 
@@ -239,12 +239,12 @@ After the review cycle is complete, **ask the user** before marking ready.
 | 0 | Worktree setup + upstream sync | git worktree, git fetch/rebase |
 | 1 | Pick issue | gh issue list/view |
 | 1.5 | Get context | Read CLAUDE.md, git log |
-| 2 | Understand & plan | architectobot |
-| 2.5 | Deep audit | architectobot / explore agent |
-| 3 | Implement | codecrusher |
-| 4 | Verify acceptance criteria | architectobot |
-| 5 | Run checks | typecheck/lint/format/build, cargo |
-| 6 | Update memory | memory-keeper |
+| 2 | Understand & plan | /brb-architectobot |
+| 2.5 | Deep audit | /brb-architectobot / explore agent |
+| 3 | Implement | /brb-codecrusher |
+| 4 | Verify acceptance criteria | /brb-architectobot |
+| 5 | Run checks | /brb-cross-check |
+| 6 | Update memory | /brb-memory-keeper |
 | 7 | Commit | git add, git commit |
 | 8 | Merge default branch | git fetch/merge |
 | 9 | Push & draft PR | git push, gh pr create --draft |

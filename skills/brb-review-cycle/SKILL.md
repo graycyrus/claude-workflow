@@ -1,7 +1,7 @@
 ---
 name: brb-review-cycle
 description: Autonomous PR review cycle — process CodeRabbit/reviewer comments, fix CI failures, resolve merge conflicts. Loops until the PR is fully clean.
-allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *)
+allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *)
 argument-hint: "<pr-number>"
 ---
 

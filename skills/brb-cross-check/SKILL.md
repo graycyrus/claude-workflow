@@ -1,7 +1,7 @@
 ---
 name: brb-cross-check
 description: Run all quality checks for the current project — typecheck, lint, format, build, and Rust checks. Auto-detects available commands.
-allowed-tools: Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Bash(cat *) Bash(go *) Bash(python *) Bash(pytest *) Bash(ruff *) Bash(mypy *)
+allowed-tools: Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Bash(go *) Bash(python *) Bash(pytest *) Bash(ruff *) Bash(mypy *) Bash(golangci-lint *) Grep Read
 ---
 
 # Cross-Check
@@ -46,13 +46,7 @@ if [ -f Cargo.toml ]; then
 fi
 ```
 
-If there's a secondary Cargo.toml (e.g. in a Tauri app):
-```bash
-# Check for nested Rust projects
-find . -name Cargo.toml -not -path ./Cargo.toml -not -path '*/vendor/*' -not -path '*/target/*' 2>/dev/null
-```
-
-Run `cargo fmt --check` and `cargo check` for each.
+Also check for nested Rust projects (e.g. Tauri apps) using the Glob tool to find other `Cargo.toml` files, and run `cargo fmt --check` + `cargo check` for each.
 
 ### 3. Completeness grep
 
@@ -63,7 +57,7 @@ If the task involved removing or replacing something, verify none remain:
 # grep -rn 'pattern' src/ --include='*.ts' --include='*.tsx' | grep -v node_modules | grep -v .test.
 ```
 
-### 3. Python checks (if pyproject.toml or setup.py exists)
+### 4. Python checks (if pyproject.toml or setup.py exists)
 
 ```bash
 if [ -f pyproject.toml ] || [ -f setup.py ]; then
@@ -76,7 +70,7 @@ if [ -f pyproject.toml ] || [ -f setup.py ]; then
 fi
 ```
 
-### 4. Go checks (if go.mod exists)
+### 5. Go checks (if go.mod exists)
 
 ```bash
 if [ -f go.mod ]; then
