@@ -17,7 +17,9 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 | `/brb-implement` | Plan with architectobot, implement with codecrusher, verify |
 | `/brb-cross-check` | Auto-detect and run all quality checks (typecheck, lint, format, build) |
 | `/brb-raise-pr` | Commit, merge main, push, create a draft PR |
+| `/brb-review-pr` | CodeRabbit-style PR review — gates, analysis, structured findings, optional fixes |
 | `/brb-review-cycle` | Autonomous loop: fix review comments, CI failures, merge conflicts |
+| `/brb-create-issue` | Research codebase, draft a structured issue from a casual description, file it |
 
 ### Agent skills (used by the workflow, also usable standalone)
 
@@ -162,10 +164,10 @@ Detailed reference docs are in [`docs/`](docs/):
 
 ```bash
 # Global
-rm -rf ~/.claude/skills/{brb-workflow,brb-pick-issue,brb-implement,brb-cross-check,brb-raise-pr,brb-review-cycle,brb-architectobot,brb-codecrusher,brb-memory-keeper,brb-update-workflow}
+rm -rf ~/.claude/skills/brb-{workflow,pick-issue,implement,cross-check,raise-pr,review-pr,review-cycle,create-issue,architectobot,codecrusher,memory-keeper,update-workflow}
 
 # Per-project
-rm -rf .claude/skills/{brb-workflow,brb-pick-issue,brb-implement,brb-cross-check,brb-raise-pr,brb-review-cycle,brb-architectobot,brb-codecrusher,brb-memory-keeper,brb-update-workflow}
+rm -rf .claude/skills/brb-{workflow,pick-issue,implement,cross-check,raise-pr,review-pr,review-cycle,create-issue,architectobot,codecrusher,memory-keeper,update-workflow}
 
 # If symlink install, also remove the cloned repo
 rm -rf ~/.claude/claude-workflow

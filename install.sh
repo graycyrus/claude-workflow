@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/graycyrus/claude-workflow.git"
-SKILLS_LIST="brb-workflow brb-pick-issue brb-implement brb-cross-check brb-raise-pr brb-review-cycle brb-architectobot brb-codecrusher brb-memory-keeper brb-update-workflow"
+SKILLS_LIST="brb-workflow brb-pick-issue brb-implement brb-cross-check brb-raise-pr brb-review-pr brb-review-cycle brb-create-issue brb-architectobot brb-codecrusher brb-memory-keeper brb-update-workflow"
 
 # Check prerequisites
 if ! command -v git &>/dev/null; then
