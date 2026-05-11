@@ -36,6 +36,7 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 - **Git worktrees over branches.** Work on multiple issues in parallel without stashing or switching.
 - **Draft PRs always.** Never open a non-draft PR. Let CI and reviewers do their thing first.
 - **Autonomous review cycles.** Once a PR is up, the review cycle runs until it's fully clean — no hand-holding.
+- **Session resume.** Start a new session and pick up where you left off — worktrees, draft PRs, and workflow phase are detected automatically.
 - **Zero config.** Skills auto-detect your repo, username, package manager, and default branch. No config files needed.
 
 ## Install

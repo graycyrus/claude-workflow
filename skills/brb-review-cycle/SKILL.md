@@ -67,9 +67,13 @@ gh pr comment $PR_NUMBER --repo $REPO --body "..."
 
 ### Step 2: CI checks
 
+Wait for all checks to complete, then read results:
+
 ```bash
-gh pr checks $PR_NUMBER --repo $REPO
+gh pr checks $PR_NUMBER --repo $REPO --watch
 ```
+
+The `--watch` flag blocks until all checks finish — no need to poll. Once done, check results.
 
 If any check is failing:
 
@@ -78,7 +82,7 @@ If any check is failing:
    gh run view <run_id> --repo $REPO --log-failed
    ```
 2. **Fix locally** — make the change, verify with the matching local command
-3. **Commit and push** — checks will re-run automatically
+3. **Commit and push** — checks will re-run. Use `--watch` again to wait for the new run.
 
 Do NOT consider the PR ready until all checks are green.
 

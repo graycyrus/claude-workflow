@@ -34,6 +34,38 @@ Print these values so the user can confirm. If `REPO` or `GH_USER` are empty, **
 
 ---
 
+## Session resume (before anything else)
+
+Check for in-progress work from a previous session:
+
+```bash
+# Existing worktrees (besides the main one)
+git worktree list
+
+# Open draft PRs by the user
+gh pr list --repo $REPO --author $GH_USER --state open --draft
+```
+
+If there are active worktrees or open draft PRs, show them and ask:
+
+> "I found in-progress work:
+> - Worktree `../project-123` on branch `feat/dark-mode` (issue #123)
+> - Draft PR #456: 'feat: add dark mode toggle'
+>
+> **Resume** one of these, or **start fresh** on a new issue?"
+
+If the user wants to resume:
+- `cd` into the worktree
+- Determine the current phase:
+  - Has a PR? → skip to **Step 10 (PR review cycle)**
+  - Has commits but no PR? → skip to **Step 9 (Push and raise PR)**
+  - Has changes but no commits? → skip to **Step 5 (Run checks)**
+  - Clean worktree? → skip to **Step 2 (Plan with /brb-architectobot)**
+
+If no in-progress work, or user wants to start fresh, continue to Step 0.
+
+---
+
 ## Step 0: Branch & upstream check + worktree setup
 
 ### 0a. Check current state
@@ -87,6 +119,8 @@ $PKG install
 ```
 
 All work for this issue happens inside the worktree directory.
+
+**Save state**: Remember the issue number, branch name, and worktree path for session resume.
 
 ---
 
@@ -241,6 +275,8 @@ gh pr create --repo $REPO --base $DEFAULT_BRANCH --draft \
 
 Closes #<issue-number>"
 ```
+
+**Save state**: Remember the PR number and URL for session resume.
 
 ---
 
