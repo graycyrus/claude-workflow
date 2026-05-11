@@ -21,11 +21,9 @@ gh issue view $ARGUMENTS --repo $REPO
 
 ---
 
-## Phase 1: Understand (architectobot)
+## Phase 1: Understand (/architectobot)
 
-Use the **architectobot** agent to deeply understand the issue before writing any code.
-
-> "Use architectobot to read issue #N and create an implementation plan"
+Run `/architectobot <issue-number>` to deeply understand the issue before writing any code.
 
 What to expect back:
 - List of files to modify
@@ -61,24 +59,20 @@ Present the revised plan to the user. Call out:
 
 ---
 
-## Phase 4: Implement (codecrusher)
+## Phase 4: Implement (/codecrusher)
 
-Use the **codecrusher** agent to write the actual code changes.
+Run `/codecrusher` to write the actual code changes.
 
-> "Use codecrusher to implement the plan"
-
-Provide codecrusher with:
+Provide it with:
 - The exact files and changes from the approved plan
 - Any constraints (don't touch other code, keep existing patterns, etc.)
 - Verification command to run after edits
 
 ---
 
-## Phase 5: Verify (architectobot)
+## Phase 5: Verify (/architectobot)
 
-Use **architectobot** again to verify every acceptance criterion from the issue is met end-to-end.
-
-> "Use architectobot to read the issue and verify if it's done end to end"
+Run `/architectobot <issue-number>` again, asking it to verify every acceptance criterion from the issue is met end-to-end.
 
 What it checks:
 - Every acceptance criterion from the issue

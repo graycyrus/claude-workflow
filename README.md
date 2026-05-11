@@ -8,6 +8,8 @@ This workflow has been refined over months of daily use on a production codebase
 
 A set of Claude Code **skills** (slash commands) that give Claude a structured process for working through GitHub issues:
 
+### Workflow skills
+
 | Skill | What it does |
 |---|---|
 | `/workflow` | Full 12-step orchestrator — issue to merged PR |
@@ -16,6 +18,14 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 | `/cross-check` | Auto-detect and run all quality checks (typecheck, lint, format, build) |
 | `/raise-pr` | Commit, merge main, push, create a draft PR |
 | `/review-cycle` | Autonomous loop: fix review comments, CI failures, merge conflicts |
+
+### Agent skills (used by the workflow, also usable standalone)
+
+| Skill | What it does |
+|---|---|
+| `/architectobot` | Analyze codebase, create implementation plans, verify acceptance criteria |
+| `/codecrusher` | Execute implementation plans — write clean, production-ready code |
+| `/memory-keeper` | Capture learnings and gotchas into project memory for future sessions |
 
 ## Philosophy
 
@@ -99,13 +109,13 @@ Claude: [runs codecrusher, implements, verifies, runs checks]
 
 ## How it works
 
-The workflow uses Claude Code's **agent system** to delegate specialized tasks:
+The workflow orchestrates three specialized agent skills:
 
-- **architectobot** — Explores the codebase, creates implementation plans, verifies acceptance criteria
-- **codecrusher** — Writes code changes following the approved plan
-- **memory-keeper** — Captures learnings and gotchas for future sessions
+- **`/architectobot`** — Explores the codebase, creates implementation plans, verifies acceptance criteria
+- **`/codecrusher`** — Writes code changes following the approved plan
+- **`/memory-keeper`** — Captures learnings and gotchas for future sessions
 
-These are Claude Code's built-in agent types. The skills orchestrate when and how they're used.
+These ship as part of this repo. The workflow skills (`/workflow`, `/implement`) call them automatically, but you can also use them standalone — e.g. `/architectobot 123` to plan an issue without running the full workflow.
 
 ## Auto-detection
 

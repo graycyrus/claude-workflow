@@ -128,11 +128,9 @@ git log --oneline -20
 
 ---
 
-## Step 2: Understand with architectobot
+## Step 2: Understand with /architectobot
 
-Use the **architectobot** agent to read the issue, explore the codebase, and produce an implementation plan.
-
-> "Use architectobot to read issue #N and create an implementation plan"
+Run `/architectobot <issue-number>` to read the issue, explore the codebase, and produce an implementation plan.
 
 The plan must be **explicitly approved by the user** before moving to implementation.
 
@@ -153,19 +151,15 @@ Revise the plan based on findings. Present the revised plan to the user for appr
 
 ---
 
-## Step 3: Implement with codecrusher
+## Step 3: Implement with /codecrusher
 
-Use the **codecrusher** agent to write code per the approved plan.
-
-> "Use codecrusher to implement the plan"
+Run `/codecrusher` to write code per the approved plan.
 
 ---
 
-## Step 4: Verify with architectobot
+## Step 4: Verify with /architectobot
 
-Use **architectobot** again to verify every acceptance criterion from the issue is met.
-
-> "Use architectobot to read the issue and verify if it's done end to end"
+Run `/architectobot <issue-number>` again, this time asking it to verify every acceptance criterion from the issue is met end-to-end.
 
 Fix anything flagged.
 
@@ -193,9 +187,7 @@ $PKG run build 2>/dev/null
 
 ## Step 6: Update memory
 
-If the project uses a memory-keeper agent or `.claude/memory.md`, update it with learnings from this session.
-
-> "Use memory-keeper to update memory with what we learned"
+Run `/memory-keeper` to capture learnings from this session into the project's memory file.
 
 ---
 
