@@ -26,6 +26,7 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 | `/architectobot` | Analyze codebase, create implementation plans, verify acceptance criteria |
 | `/codecrusher` | Execute implementation plans — write clean, production-ready code |
 | `/memory-keeper` | Capture learnings and gotchas into project memory for future sessions |
+| `/update-workflow` | Pull latest skills from GitHub and update your install |
 
 ## Philosophy
 
@@ -37,7 +38,24 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 
 ## Install
 
-### Option A: Global (all your projects)
+### Option A: Interactive installer
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh)
+```
+
+Choose between:
+1. **Copy — Global** (`~/.claude/skills/`) — works everywhere, update via `/update-workflow`
+2. **Copy — Project** (`.claude/skills/`) — per-project, update via `/update-workflow`
+3. **Symlink — Global** — clones to `~/.claude/claude-workflow/`, symlinks skills. `git pull` = instant updates.
+
+### Option B: One-liner (global copy, non-interactive)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh | bash
+```
+
+### Option C: Manual
 
 ```bash
 git clone https://github.com/graycyrus/claude-workflow.git /tmp/claude-workflow
@@ -46,25 +64,19 @@ cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/
 rm -rf /tmp/claude-workflow
 ```
 
-### Option B: Per-project
+## Updating
+
+### If you installed via copy (Options A/B/C)
+
+Run `/update-workflow` inside Claude Code — it pulls the latest from GitHub, shows what changed, and updates in place.
+
+### If you installed via symlink (Option A, choice 3)
 
 ```bash
-git clone https://github.com/graycyrus/claude-workflow.git /tmp/claude-workflow
-mkdir -p .claude/skills
-cp -r /tmp/claude-workflow/skills/* .claude/skills/
-rm -rf /tmp/claude-workflow
+cd ~/.claude/claude-workflow && git pull
 ```
 
-### Option C: One-liner (installs globally)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh | bash
-```
-
-For interactive mode (choose global vs project), download and run directly:
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh)
-```
+That's it — symlinks point to the repo, so changes are picked up immediately.
 
 ## Usage
 
@@ -150,10 +162,13 @@ Detailed reference docs are in [`docs/`](docs/):
 
 ```bash
 # Global
-rm -rf ~/.claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper}
+rm -rf ~/.claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper,update-workflow}
 
 # Per-project
-rm -rf .claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper}
+rm -rf .claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper,update-workflow}
+
+# If symlink install, also remove the cloned repo
+rm -rf ~/.claude/claude-workflow
 ```
 
 ## Contributing
