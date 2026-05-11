@@ -1,5 +1,5 @@
 ---
-name: implement
+name: brb-implement
 description: Plan, implement, and verify a GitHub issue using architectobot and codecrusher agents. Covers understanding, deep audit, implementation, and acceptance verification.
 allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
 argument-hint: "[issue-number]"
@@ -24,9 +24,9 @@ gh issue view $ARGUMENTS --repo $REPO
 
 ---
 
-## Phase 1: Understand (/architectobot)
+## Phase 1: Understand (/brb-architectobot)
 
-Run `/architectobot <issue-number>` to deeply understand the issue before writing any code.
+Run `/brb-architectobot <issue-number>` to deeply understand the issue before writing any code.
 
 What to expect back:
 - List of files to modify
@@ -62,9 +62,9 @@ Present the revised plan to the user. Call out:
 
 ---
 
-## Phase 4: Implement (/codecrusher)
+## Phase 4: Implement (/brb-codecrusher)
 
-Run `/codecrusher` to write the actual code changes.
+Run `/brb-codecrusher` to write the actual code changes.
 
 Provide it with:
 - The exact files and changes from the approved plan
@@ -73,9 +73,9 @@ Provide it with:
 
 ---
 
-## Phase 5: Verify (/architectobot)
+## Phase 5: Verify (/brb-architectobot)
 
-Run `/architectobot <issue-number>` again, asking it to verify every acceptance criterion from the issue is met end-to-end.
+Run `/brb-architectobot <issue-number>` again, asking it to verify every acceptance criterion from the issue is met end-to-end.
 
 What it checks:
 - Every acceptance criterion from the issue

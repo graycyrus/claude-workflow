@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/graycyrus/claude-workflow.git"
-SKILLS_LIST="workflow pick-issue implement cross-check raise-pr review-cycle architectobot codecrusher memory-keeper update-workflow"
+SKILLS_LIST="brb-workflow brb-pick-issue brb-implement brb-cross-check brb-raise-pr brb-review-cycle brb-architectobot brb-codecrusher brb-memory-keeper brb-update-workflow"
 
 # Check prerequisites
 if ! command -v git &>/dev/null; then
@@ -17,8 +17,8 @@ if [ -t 0 ]; then
   echo ""
   echo "Install method:"
   echo ""
-  echo "  1) Copy — Global   (~/.claude/skills/)     — simple, update via /update-workflow"
-  echo "  2) Copy — Project  (.claude/skills/)        — per-project, update via /update-workflow"
+  echo "  1) Copy — Global   (~/.claude/skills/)     — simple, update via /brb-update-workflow"
+  echo "  2) Copy — Project  (.claude/skills/)        — per-project, update via /brb-update-workflow"
   echo "  3) Symlink — Global (~/.claude/skills/)     — git pull = instant updates"
   echo ""
   read -rp "Choose [1/2/3]: " choice
@@ -113,8 +113,8 @@ else
   done
 
   echo ""
-  echo "Done! Open Claude Code and try: /workflow"
+  echo "Done! Open Claude Code and try: /brb-workflow"
   echo ""
-  echo "To update:  run /update-workflow in Claude Code"
+  echo "To update:  run /brb-update-workflow in Claude Code"
   echo "To uninstall: rm -rf $TARGET/{$(echo $SKILLS_LIST | tr ' ' ',')}"
 fi

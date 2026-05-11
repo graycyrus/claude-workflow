@@ -1,5 +1,5 @@
 ---
-name: memory-keeper
+name: brb-memory-keeper
 description: Captures important learnings, fixes, patterns, and gotchas from the current session into project memory for future reference.
 allowed-tools: Read Write Edit Grep Glob
 ---

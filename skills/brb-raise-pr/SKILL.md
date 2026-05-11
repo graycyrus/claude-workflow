@@ -1,5 +1,5 @@
 ---
-name: raise-pr
+name: brb-raise-pr
 description: Commit changes, merge the default branch, push, and create a draft PR. Handles conflict resolution and proper PR formatting.
 allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *)
 argument-hint: "[issue-number]"
@@ -105,4 +105,4 @@ Closes #<issue-number>"
 
 Print the PR URL so the user can see it.
 
-Suggest running `/review-cycle <pr-number>` to handle the review cycle.
+Suggest running `/brb-review-cycle <pr-number>` to handle the review cycle.

@@ -1,5 +1,5 @@
 ---
-name: workflow
+name: brb-workflow
 description: Full AI-assisted development workflow — from issue discovery to merged PR. Orchestrates worktree setup, planning, implementation, cross-checking, and PR review cycles.
 allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
 argument-hint: "[issue-number]"
@@ -132,9 +132,9 @@ git log --oneline -20
 
 ---
 
-## Step 2: Understand with /architectobot
+## Step 2: Understand with /brb-architectobot
 
-Run `/architectobot <issue-number>` to read the issue, explore the codebase, and produce an implementation plan.
+Run `/brb-architectobot <issue-number>` to read the issue, explore the codebase, and produce an implementation plan.
 
 The plan must be **explicitly approved by the user** before moving to implementation.
 
@@ -155,15 +155,15 @@ Revise the plan based on findings. Present the revised plan to the user for appr
 
 ---
 
-## Step 3: Implement with /codecrusher
+## Step 3: Implement with /brb-codecrusher
 
-Run `/codecrusher` to write code per the approved plan.
+Run `/brb-codecrusher` to write code per the approved plan.
 
 ---
 
-## Step 4: Verify with /architectobot
+## Step 4: Verify with /brb-architectobot
 
-Run `/architectobot <issue-number>` again, this time asking it to verify every acceptance criterion from the issue is met end-to-end.
+Run `/brb-architectobot <issue-number>` again, this time asking it to verify every acceptance criterion from the issue is met end-to-end.
 
 Fix anything flagged.
 
@@ -191,7 +191,7 @@ $PKG run build 2>/dev/null
 
 ## Step 6: Update memory
 
-Run `/memory-keeper` to capture learnings from this session into the project's memory file.
+Run `/brb-memory-keeper` to capture learnings from this session into the project's memory file.
 
 ---
 

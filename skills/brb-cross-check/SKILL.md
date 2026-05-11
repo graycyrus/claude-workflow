@@ -1,5 +1,5 @@
 ---
-name: cross-check
+name: brb-cross-check
 description: Run all quality checks for the current project — typecheck, lint, format, build, and Rust checks. Auto-detects available commands.
 allowed-tools: Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Bash(cat *) Bash(go *) Bash(python *) Bash(pytest *) Bash(ruff *) Bash(mypy *)
 ---

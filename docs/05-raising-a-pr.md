@@ -76,7 +76,7 @@ Closes #<issue-number>"
 
 - Share the PR URL
 - Monitor CI checks
-- Address review comments promptly (use `/review-cycle`)
+- Address review comments promptly (use `/brb-review-cycle`)
 - Keep the PR focused — one issue per PR
 
 ## Marking ready for review

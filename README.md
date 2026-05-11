@@ -12,21 +12,21 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 
 | Skill | What it does |
 |---|---|
-| `/workflow` | Full orchestrator — issue to merged PR |
-| `/pick-issue` | Set up a git worktree and discover/assign a GitHub issue |
-| `/implement` | Plan with architectobot, implement with codecrusher, verify |
-| `/cross-check` | Auto-detect and run all quality checks (typecheck, lint, format, build) |
-| `/raise-pr` | Commit, merge main, push, create a draft PR |
-| `/review-cycle` | Autonomous loop: fix review comments, CI failures, merge conflicts |
+| `/brb-workflow` | Full orchestrator — issue to merged PR |
+| `/brb-pick-issue` | Set up a git worktree and discover/assign a GitHub issue |
+| `/brb-implement` | Plan with architectobot, implement with codecrusher, verify |
+| `/brb-cross-check` | Auto-detect and run all quality checks (typecheck, lint, format, build) |
+| `/brb-raise-pr` | Commit, merge main, push, create a draft PR |
+| `/brb-review-cycle` | Autonomous loop: fix review comments, CI failures, merge conflicts |
 
 ### Agent skills (used by the workflow, also usable standalone)
 
 | Skill | What it does |
 |---|---|
-| `/architectobot` | Analyze codebase, create implementation plans, verify acceptance criteria |
-| `/codecrusher` | Execute implementation plans — write clean, production-ready code |
-| `/memory-keeper` | Capture learnings and gotchas into project memory for future sessions |
-| `/update-workflow` | Pull latest skills from GitHub and update your install |
+| `/brb-architectobot` | Analyze codebase, create implementation plans, verify acceptance criteria |
+| `/brb-codecrusher` | Execute implementation plans — write clean, production-ready code |
+| `/brb-memory-keeper` | Capture learnings and gotchas into project memory for future sessions |
+| `/brb-update-workflow` | Pull latest skills from GitHub and update your install |
 
 ## Philosophy
 
@@ -45,8 +45,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/ma
 ```
 
 Choose between:
-1. **Copy — Global** (`~/.claude/skills/`) — works everywhere, update via `/update-workflow`
-2. **Copy — Project** (`.claude/skills/`) — per-project, update via `/update-workflow`
+1. **Copy — Global** (`~/.claude/skills/`) — works everywhere, update via `/brb-update-workflow`
+2. **Copy — Project** (`.claude/skills/`) — per-project, update via `/brb-update-workflow`
 3. **Symlink — Global** — clones to `~/.claude/claude-workflow/`, symlinks skills. `git pull` = instant updates.
 
 ### Option B: One-liner (global copy, non-interactive)
@@ -68,7 +68,7 @@ rm -rf /tmp/claude-workflow
 
 ### If you installed via copy (Options A/B/C)
 
-Run `/update-workflow` inside Claude Code — it pulls the latest from GitHub, shows what changed, and updates in place.
+Run `/brb-update-workflow` inside Claude Code — it pulls the latest from GitHub, shows what changed, and updates in place.
 
 ### If you installed via symlink (Option A, choice 3)
 
@@ -84,23 +84,23 @@ Once installed, the skills are available as slash commands in Claude Code:
 
 ```
 # Full workflow — start to finish
-/workflow
+/brb-workflow
 
 # Full workflow for a specific issue
-/workflow 123
+/brb-workflow 123
 
 # Individual steps
-/pick-issue
-/implement 123
-/cross-check
-/raise-pr 123
-/review-cycle 456
+/brb-pick-issue
+/brb-implement 123
+/brb-cross-check
+/brb-raise-pr 123
+/brb-review-cycle 456
 ```
 
 ### Typical session
 
 ```
-You: /workflow
+You: /brb-workflow
 Claude: [detects repo, username, package manager]
         [checks branch, syncs upstream, creates worktree]
         "Do you want to work on an assigned issue or pick an unassigned one?"
@@ -128,11 +128,11 @@ Claude: [runs codecrusher, implements, verifies, runs checks]
 
 The workflow orchestrates three specialized agent skills:
 
-- **`/architectobot`** — Explores the codebase, creates implementation plans, verifies acceptance criteria
-- **`/codecrusher`** — Writes code changes following the approved plan
-- **`/memory-keeper`** — Captures learnings and gotchas for future sessions
+- **`/brb-architectobot`** — Explores the codebase, creates implementation plans, verifies acceptance criteria
+- **`/brb-codecrusher`** — Writes code changes following the approved plan
+- **`/brb-memory-keeper`** — Captures learnings and gotchas for future sessions
 
-These ship as part of this repo. The workflow skills (`/workflow`, `/implement`) call them automatically, but you can also use them standalone — e.g. `/architectobot 123` to plan an issue without running the full workflow.
+These ship as part of this repo. The workflow skills (`/brb-workflow`, `/brb-implement`) call them automatically, but you can also use them standalone — e.g. `/brb-architectobot 123` to plan an issue without running the full workflow.
 
 ## Auto-detection
 
@@ -162,10 +162,10 @@ Detailed reference docs are in [`docs/`](docs/):
 
 ```bash
 # Global
-rm -rf ~/.claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper,update-workflow}
+rm -rf ~/.claude/skills/{brb-workflow,brb-pick-issue,brb-implement,brb-cross-check,brb-raise-pr,brb-review-cycle,brb-architectobot,brb-codecrusher,brb-memory-keeper,brb-update-workflow}
 
 # Per-project
-rm -rf .claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper,update-workflow}
+rm -rf .claude/skills/{brb-workflow,brb-pick-issue,brb-implement,brb-cross-check,brb-raise-pr,brb-review-cycle,brb-architectobot,brb-codecrusher,brb-memory-keeper,brb-update-workflow}
 
 # If symlink install, also remove the cloned repo
 rm -rf ~/.claude/claude-workflow

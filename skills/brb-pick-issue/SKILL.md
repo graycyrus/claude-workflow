@@ -1,5 +1,5 @@
 ---
-name: pick-issue
+name: brb-pick-issue
 description: Set up a git worktree and pick a GitHub issue to work on. Handles upstream sync, issue discovery, assignment, and context loading.
 allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *)
 argument-hint: "[issue-number]"

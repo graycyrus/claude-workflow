@@ -1,5 +1,5 @@
 ---
-name: update-workflow
+name: brb-update-workflow
 description: Update all claude-workflow skills to the latest version from GitHub.
 allowed-tools: Bash(git *) Bash(rm *) Bash(cp *) Bash(mkdir *) Bash(ls *) Bash(cat *) Bash(diff *)
 ---
@@ -14,14 +14,14 @@ Check where the skills are currently installed:
 
 ```bash
 # Check global install
-if [ -d "$HOME/.claude/skills/workflow" ]; then
+if [ -d "$HOME/.claude/skills/brb-workflow" ]; then
   INSTALL_DIR="$HOME/.claude/skills"
   INSTALL_TYPE="global"
   echo "Found global install at $INSTALL_DIR"
 fi
 
 # Check project install
-if [ -d ".claude/skills/workflow" ]; then
+if [ -d ".claude/skills/brb-workflow" ]; then
   INSTALL_DIR=".claude/skills"
   INSTALL_TYPE="project"
   echo "Found project install at $INSTALL_DIR"

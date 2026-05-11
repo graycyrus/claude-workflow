@@ -109,7 +109,7 @@ Before implementation, read project instructions and recent history:
 
 ## Step 2: Understand with architectobot
 
-Run `/architectobot` to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
+Run `/brb-architectobot` to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 1 & 2
 
@@ -132,7 +132,7 @@ Revise the plan based on findings before presenting to the user.
 
 ## Step 3: Implement with codecrusher
 
-Run `/codecrusher` to write the code changes per the approved plan.
+Run `/brb-codecrusher` to write the code changes per the approved plan.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
@@ -140,7 +140,7 @@ See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
 ## Step 4: Verify with architectobot
 
-Run `/architectobot` again to verify every acceptance criterion from the issue is met. Fix anything flagged.
+Run `/brb-architectobot` again to verify every acceptance criterion from the issue is met. Fix anything flagged.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 4
 
