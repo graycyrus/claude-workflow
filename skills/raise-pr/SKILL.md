@@ -1,6 +1,7 @@
 ---
+name: raise-pr
 description: Commit changes, merge the default branch, push, and create a draft PR. Handles conflict resolution and proper PR formatting.
-allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(cargo *)
+allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *)
 argument-hint: "[issue-number]"
 ---
 
@@ -9,10 +10,12 @@ argument-hint: "[issue-number]"
 ## Environment detection
 
 ```bash
-REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "UNKNOWN")
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
 DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
 BRANCH=$(git branch --show-current)
 ```
+
+If `REPO` is empty, **STOP and ask the user** to check `gh auth login` and remotes.
 
 ---
 

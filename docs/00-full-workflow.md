@@ -35,9 +35,9 @@ If you are **NOT on the default branch**, **STOP and ask the user**. Show them:
 Once on the default branch, fetch upstream and rebase:
 
 ```bash
-git fetch upstream   # or origin, depending on your setup
-git rebase upstream/main
-git push origin main
+git fetch $UPSTREAM   # "upstream" if fork, "origin" otherwise
+git rebase $UPSTREAM/$DEFAULT_BRANCH
+git push origin $DEFAULT_BRANCH
 ```
 
 If the rebase has conflicts, **STOP and ask the user** — do not auto-resolve.
@@ -109,7 +109,7 @@ Before implementation, read project instructions and recent history:
 
 ## Step 2: Understand with architectobot
 
-Use **architectobot** to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
+Run `/architectobot` to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 1 & 2
 
@@ -132,7 +132,7 @@ Revise the plan based on findings before presenting to the user.
 
 ## Step 3: Implement with codecrusher
 
-Use **codecrusher** to write the code changes per the approved plan.
+Run `/codecrusher` to write the code changes per the approved plan.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
@@ -140,7 +140,7 @@ See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
 ## Step 4: Verify with architectobot
 
-Use **architectobot** again to verify every acceptance criterion from the issue is met. Fix anything flagged.
+Run `/architectobot` again to verify every acceptance criterion from the issue is met. Fix anything flagged.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 4
 

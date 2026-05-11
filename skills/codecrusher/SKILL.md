@@ -1,7 +1,7 @@
 ---
 name: codecrusher
 description: Senior Developer & Implementation Expert who transforms architectural plans into high-quality, production-ready code across any technology stack.
-allowed-tools: Read Write Edit Bash(*) Grep Glob Agent(*)
+allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
 argument-hint: "[plan description or issue-number]"
 ---
 
@@ -60,7 +60,7 @@ After all changes are made, run the project's quality checks:
 
 ```bash
 # Auto-detect package manager
-if [ -f pnpm-lock.yaml ]; then PKG=pnpm; elif [ -f yarn.lock ]; then PKG=yarn; else PKG=npm; fi
+if [ -f bun.lockb ]; then PKG=bun; elif [ -f pnpm-lock.yaml ]; then PKG=pnpm; elif [ -f yarn.lock ]; then PKG=yarn; else PKG=npm; fi
 
 # Run available checks
 $PKG run typecheck 2>/dev/null

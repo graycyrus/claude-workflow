@@ -1,6 +1,7 @@
 ---
+name: workflow
 description: Full AI-assisted development workflow — from issue discovery to merged PR. Orchestrates worktree setup, planning, implementation, cross-checking, and PR review cycles.
-allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(cargo *) Agent(*)
+allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
 argument-hint: "[issue-number]"
 ---
 
@@ -14,22 +15,22 @@ Detect these values once and use them throughout:
 
 ```bash
 # Repo (owner/repo)
-REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "UNKNOWN")
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
 
-# GitHub username
-GH_USER=$(gh api user -q .login 2>/dev/null || git config user.name)
+# GitHub username (must be the login, not display name)
+GH_USER=$(gh api user -q .login 2>/dev/null || echo "")
 
 # Package manager
-if [ -f pnpm-lock.yaml ]; then PKG=pnpm; elif [ -f yarn.lock ]; then PKG=yarn; else PKG=npm; fi
+if [ -f bun.lockb ]; then PKG=bun; elif [ -f pnpm-lock.yaml ]; then PKG=pnpm; elif [ -f yarn.lock ]; then PKG=yarn; else PKG=npm; fi
 
 # Default branch
 DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
 
 # Upstream remote (if fork workflow)
-UPSTREAM=$(git remote get-url upstream 2>/dev/null && echo "upstream" || echo "origin")
+UPSTREAM=$(git remote get-url upstream >/dev/null 2>&1 && echo "upstream" || echo "origin")
 ```
 
-Print these values so the user can confirm.
+Print these values so the user can confirm. If `REPO` or `GH_USER` are empty, **STOP and ask the user** — they may need to run `gh auth login` or set up the remote.
 
 ---
 
@@ -66,8 +67,11 @@ If rebase has conflicts, **STOP and ask the user**.
 ### 0c. Create a worktree
 
 ```bash
+# Save the main repo path before changing directory
+MAIN_REPO=$(pwd)
+
 # Convention: ../<repo-short>-<issue-number>
-WORKTREE_DIR=../$(basename $(pwd))-<issue-number>
+WORKTREE_DIR=../$(basename $MAIN_REPO)-<issue-number>
 git worktree add $WORKTREE_DIR -b <type>/short-description
 
 cd $WORKTREE_DIR
@@ -75,8 +79,8 @@ cd $WORKTREE_DIR
 # Init submodules if any
 git submodule update --init --recursive
 
-# Copy env files if they exist
-for f in .env app/.env.local; do [ -f ../$(basename $(pwd))/../$f ] && cp ../$(basename $(pwd))/../$f $f; done
+# Copy env files from main repo if they exist
+for f in .env app/.env.local; do [ -f "$MAIN_REPO/$f" ] && cp "$MAIN_REPO/$f" "$f"; done
 
 # Install dependencies
 $PKG install
@@ -300,7 +304,7 @@ If yes: `gh pr ready <N> --repo $REPO`
 
 If remove:
 ```bash
-cd ../<main-repo>
+cd $MAIN_REPO
 git worktree remove $WORKTREE_DIR
-git branch -d <branch-name>
+git branch -d <branch-name>  # use -D if the branch was not yet merged
 ```

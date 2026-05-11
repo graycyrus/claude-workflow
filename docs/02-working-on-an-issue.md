@@ -9,7 +9,7 @@ Before anything else:
 
 ## Phase 1: Understand (architectobot)
 
-Use the **architectobot** agent to deeply understand the issue before writing any code.
+Run `/architectobot` to deeply understand the issue before writing any code.
 
 **What it does:**
 - Reads the GitHub issue
@@ -19,7 +19,7 @@ Use the **architectobot** agent to deeply understand the issue before writing an
 - Produces a detailed implementation plan
 
 **How to invoke:**
-> "Use architectobot to read issue #N and create an implementation plan"
+> `/architectobot <issue-number>`
 
 **What to expect back:**
 - List of files to modify
@@ -50,7 +50,7 @@ After the analysis:
 
 ## Phase 3: Implement (codecrusher)
 
-Use the **codecrusher** agent to write the actual code changes.
+Run `/codecrusher` to write the actual code changes.
 
 **What it does:**
 - Reads each file before editing (never edits blind)
@@ -59,7 +59,7 @@ Use the **codecrusher** agent to write the actual code changes.
 - Runs typecheck after all edits
 
 **How to invoke:**
-> "Use codecrusher to implement the plan"
+> `/codecrusher`
 
 Provide:
 - The exact files and changes from the plan
@@ -68,10 +68,10 @@ Provide:
 
 ## Phase 4: Verify (architectobot again)
 
-Use **architectobot** to verify every acceptance criterion end-to-end.
+Run `/architectobot` again to verify every acceptance criterion end-to-end.
 
 **How to invoke:**
-> "Use architectobot to read the issue and verify if it's done end to end"
+> `/architectobot <issue-number>` (ask it to verify, not plan)
 
 **What it checks:**
 - Every acceptance criterion from the issue

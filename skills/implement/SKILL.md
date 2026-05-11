@@ -1,6 +1,7 @@
 ---
+name: implement
 description: Plan, implement, and verify a GitHub issue using architectobot and codecrusher agents. Covers understanding, deep audit, implementation, and acceptance verification.
-allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(cargo *) Agent(*)
+allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
 argument-hint: "[issue-number]"
 ---
 
@@ -11,8 +12,10 @@ You are implementing a GitHub issue through a structured agent workflow. Follow 
 ## Environment detection
 
 ```bash
-REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "UNKNOWN")
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
 ```
+
+If `REPO` is empty, **STOP and ask the user** to check `gh auth login` and remotes.
 
 If `$ARGUMENTS` contains an issue number, read it:
 ```bash

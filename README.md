@@ -12,7 +12,7 @@ A set of Claude Code **skills** (slash commands) that give Claude a structured p
 
 | Skill | What it does |
 |---|---|
-| `/workflow` | Full 12-step orchestrator — issue to merged PR |
+| `/workflow` | Full orchestrator — issue to merged PR |
 | `/pick-issue` | Set up a git worktree and discover/assign a GitHub issue |
 | `/implement` | Plan with architectobot, implement with codecrusher, verify |
 | `/cross-check` | Auto-detect and run all quality checks (typecheck, lint, format, build) |
@@ -55,10 +55,15 @@ cp -r /tmp/claude-workflow/skills/* .claude/skills/
 rm -rf /tmp/claude-workflow
 ```
 
-### Option C: One-liner
+### Option C: One-liner (installs globally)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh | bash
+```
+
+For interactive mode (choose global vs project), download and run directly:
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/graycyrus/claude-workflow/main/install.sh)
 ```
 
 ## Usage
@@ -125,7 +130,7 @@ Skills detect your project setup at runtime — no configuration needed:
 |---|---|
 | Repo (owner/name) | `gh repo view` |
 | GitHub username | `gh api user` |
-| Package manager | Lockfile detection (pnpm/yarn/npm) |
+| Package manager | Lockfile detection (bun/pnpm/yarn/npm) |
 | Default branch | `git symbolic-ref` |
 | Upstream remote | Checks for `upstream` remote |
 | Available checks | Reads `package.json` scripts, checks for `Cargo.toml` |
@@ -140,6 +145,16 @@ Detailed reference docs are in [`docs/`](docs/):
 - [Cross-checking](docs/03-cross-checking.md) — quality checks
 - [Pre-commit checks](docs/04-pre-commit-checks.md) — staging and committing
 - [Raising a PR](docs/05-raising-a-pr.md) — PR creation and review
+
+## Uninstall
+
+```bash
+# Global
+rm -rf ~/.claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper}
+
+# Per-project
+rm -rf .claude/skills/{workflow,pick-issue,implement,cross-check,raise-pr,review-cycle,architectobot,codecrusher,memory-keeper}
+```
 
 ## Contributing
 
