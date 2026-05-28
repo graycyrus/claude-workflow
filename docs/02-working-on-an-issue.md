@@ -7,9 +7,9 @@ Before anything else:
 2. **Check recent commits** (`git log --oneline -20`) to understand current momentum
 3. **Read the full issue** via `gh issue view <number>`
 
-## Phase 1: Understand (/brb-architectobot)
+## Phase 1: Understand (/brb-architectobot) — use Sonnet
 
-Run `/brb-architectobot` to deeply understand the issue before writing any code.
+Run `/brb-architectobot` to deeply understand the issue before writing any code. **Use Sonnet (not Opus) for this phase** — exploration is mostly grep/read which doesn't need the expensive model.
 
 **What it does:**
 - Reads the GitHub issue
@@ -27,30 +27,45 @@ Run `/brb-architectobot` to deeply understand the issue before writing any code.
 - Potential risks or edge cases
 - Verification steps
 
-## Phase 1.5: Deep audit
+## Phase 1.5: Deep audit (SKIP for obvious bugs)
 
-Before presenting the plan to the user, run a deep audit:
+**Skip this phase entirely for:**
+- Missing field / wrong field bugs (e.g. model field not sent)
+- Sentry noise suppression (adding phrases to classifiers)
+- Config/validation fixes
+- Typos, wrong error messages
+- Any bug where the fix is clearly scoped to 1-3 files
 
-1. **Does any proposed code already exist?** — Search for existing helpers, components, patterns
-2. **Who consumes the state/components being changed?** — Find every importer and caller
-3. **Are there existing UI patterns to reuse?** — Don't reinvent existing components
-4. **State persistence / migration concerns?** — New persisted fields? Check config, versioning, defaults
-5. **Test references?** — Do tests assert on behavior being changed?
-6. **Side effects?** — Dispatched actions, listeners, API calls as side effects?
+**Only run deep audit for:**
+- New features or large refactors
+- Changes touching shared state, Redux, or persisted data
+- UI component changes that many screens consume
+- Anything that could break other callers
+
+When running the audit (use **Sonnet**, not Opus):
+
+1. **Does any proposed code already exist?** — Search for existing helpers, patterns
+2. **Who consumes the state/components being changed?** — Find callers
+3. **State persistence / migration concerns?** — New persisted fields?
+4. **Test references?** — Do tests assert on behavior being changed?
 
 Revise the plan based on findings.
 
-## Phase 2: Clarify and get approval
+## Phase 2: Clarify and get approval (10-min timeout)
 
 After the analysis:
 - Review the plan — does it match your understanding?
 - **Ask the user clarifying questions if there are ANY doubts** — never assume
-- **The plan must be explicitly approved by the user** before moving to Phase 3
+- Present the plan and **wait up to 10 minutes** for user approval
+- If the user responds within 10 minutes — follow their feedback
+- **If no response after 10 minutes — auto-approve the plan and proceed to Phase 3**
 - If wrong or incomplete, re-examine specific areas
 
-## Phase 3: Implement (/brb-codecrusher)
+> **Autonomous mode:** When running autonomously (e.g. via sentry-patrol, cron, or background agents), skip the approval wait entirely — treat the plan as auto-approved and proceed immediately.
 
-Run `/brb-codecrusher` to write the actual code changes.
+## Phase 3: Implement (/brb-codecrusher) — use Opus
+
+Run `/brb-codecrusher` to write the actual code changes. **Use Opus for this phase** — implementation needs the best reasoning for correct code.
 
 **What it does:**
 - Reads each file before editing (never edits blind)
@@ -66,33 +81,29 @@ Provide:
 - Any constraints
 - Verification command to run after edits
 
-## Phase 4: Verify (/brb-architectobot again)
+## Phase 4: Verify (cross-checks only, unless 4+ acceptance criteria)
 
-Run `/brb-architectobot` again to verify every acceptance criterion end-to-end.
+**For issues with fewer than 4 acceptance criteria:** skip architectobot verification. Cross-checks in Step 5 (typecheck, lint, format, cargo check) catch real breakage. Trust them.
 
-**How to invoke:**
-> `/brb-architectobot <issue-number>` (ask it to verify, not plan)
+**For issues with 4+ acceptance criteria:** re-run architectobot (**Sonnet**) to verify each criterion is met. Complex features have non-code requirements (docs, config, UI behavior) that automated checks miss.
 
-**What it checks:**
-- Every acceptance criterion from the issue
-- No regressions introduced
-- Docs updated if needed
-- Stale references cleaned up
+If skipping verification, note any manual checks needed in the PR description.
 
 ## Agent summary
 
 | Phase | Agent | Purpose |
 |-------|-------|---------|
 | Context | (none) | Read project docs, check git log, read issue |
-| Understand | /brb-architectobot | Explore code, create plan |
-| Audit | /brb-architectobot / explore | Deep check for duplicates, consumers, breakage |
-| Clarify | (you + user) | Review plan, ask questions, **get approval** |
-| Implement | /brb-codecrusher | Write code changes |
-| Verify | /brb-architectobot | Confirm all acceptance criteria met |
+| Understand | /brb-architectobot (**Sonnet**) | Explore code, create plan |
+| Audit | Skip for obvious bugs, Sonnet for complex ones | Deep check only when needed |
+| Clarify | (you + user, 10-min timeout) | Review plan, auto-approve if no response |
+| Implement | /brb-codecrusher (**Opus**) | Write code changes |
+| Verify | cross-checks (+ Sonnet if 4+ acceptance criteria) | skip agent pass for simple bugs |
 
 ## Key rules
 
-- **Ask before assuming.** If anything is unclear — ask the user.
-- **Every plan needs approval.** Never start implementation without "go ahead".
+- **Ask before assuming.** If anything is unclear — ask the user. But don't block forever.
+- **10-min approval timeout.** Present the plan, wait 10 minutes. No response = auto-approved.
+- **Be autonomous.** Use your judgment on trade-offs — pick the simpler approach, avoid over-engineering, and keep moving. Only block on genuinely ambiguous requirements.
 - **Read project instructions first.** They contain rules that override defaults.
 - **Check recent commits.** Understand what's been happening.

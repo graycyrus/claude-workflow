@@ -2,6 +2,8 @@
 
 This is the complete ordered flow for picking up an issue, implementing it, and shipping a PR. This workflow is designed for AI-assisted development using Claude Code.
 
+> **Autonomous mode:** This workflow can run fully autonomously. The agent should use its own judgment on trade-offs, pick the simpler approach, and keep moving. Interactive gates (plan approval, mark-ready, cleanup) have timeouts — if no human responds within 10 minutes, auto-approve and proceed. When invoked from a cron/background agent, skip all interactive gates entirely.
+
 ---
 
 ## Step 0: Branch & upstream check + worktree setup (MANDATORY BEFORE ANYTHING ELSE)
@@ -109,24 +111,17 @@ Before implementation, read project instructions and recent history:
 
 ## Step 2: Understand with /brb-architectobot
 
-Run `/brb-architectobot` to read the issue, explore the codebase, and produce an implementation plan. The plan must be **explicitly approved by the user** before implementation.
+Run `/brb-architectobot` to read the issue, explore the codebase, and produce an implementation plan. Present the plan and wait up to **10 minutes** for user approval. No response = auto-approved.
 
 See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 1 & 2
 
 ---
 
-## Step 2.5: Deep audit before implementing
+## Step 2.5: Deep audit (SKIP for obvious bugs)
 
-Before user approval, run a deep audit:
+**Skip for simple/obvious bugs** (missing fields, classifier updates, config fixes, 1-3 file changes). Only run for new features, large refactors, or changes to shared state/UI components.
 
-1. Does any proposed code already exist?
-2. Who consumes the state/components being changed?
-3. Are there existing UI patterns to reuse?
-4. State persistence / migration concerns?
-5. Test references that might break?
-6. Side effects on mount/unmount?
-
-Revise the plan based on findings before presenting to the user.
+When running: check for existing code, affected consumers, persistence concerns, test breakage. Use **Sonnet** to save tokens.
 
 ---
 
@@ -138,11 +133,10 @@ See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 3
 
 ---
 
-## Step 4: Verify with /brb-architectobot
+## Step 4: Verify (cross-checks only, unless 4+ acceptance criteria)
 
-Run `/brb-architectobot` again to verify every acceptance criterion from the issue is met. Fix anything flagged.
-
-See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 4
+**< 4 acceptance criteria:** skip architectobot — cross-checks in Step 5 are enough.
+**4+ acceptance criteria:** re-run architectobot (**Sonnet**) to verify each criterion. Complex features have non-code requirements that automated checks miss.
 
 ---
 
@@ -150,7 +144,7 @@ See: [02-working-on-an-issue.md](02-working-on-an-issue.md) — Phase 4
 
 Auto-detect and run available quality checks:
 - TypeScript: typecheck, lint, format, build
-- Rust: cargo fmt, cargo check
+- Rust: `cargo fmt --check`, `cargo check` (**NOT** `cargo build` — too slow, eats disk)
 - Any project-specific checks from package.json
 
 See: [03-cross-checking.md](03-cross-checking.md) and [04-pre-commit-checks.md](04-pre-commit-checks.md)
@@ -220,15 +214,25 @@ Resolve any conflicts with the default branch.
 
 ---
 
-## Step 11: Mark ready for review (ASK USER)
+## Step 11: Mark ready for review (10-min timeout)
 
-After the review cycle is complete, **ask the user** before marking ready.
+After the review cycle is complete, ask the user. **If no response within 10 minutes, auto-mark as ready.** In autonomous mode, mark ready immediately.
 
 ---
 
 ## Step 12: Worktree cleanup (ASK USER)
 
-**Ask the user** whether to remove the worktree or keep it.
+Ask the user whether to remove the worktree or keep it. **Never auto-remove worktrees** — always wait for explicit confirmation.
+
+However, **after 10 minutes, automatically clean build artifacts** to free disk:
+
+```bash
+rm -rf <worktree>/target           # Rust build artifacts (5-15GB each)
+rm -rf <worktree>/node_modules     # Node dependencies
+rm -rf <worktree>/app/node_modules
+```
+
+This keeps the source code and git history intact but reclaims disk space immediately. The user can still review code, diffs, and branches — they just need to `cargo check` / `pnpm install` again if they want to rebuild.
 
 ---
 
@@ -239,15 +243,15 @@ After the review cycle is complete, **ask the user** before marking ready.
 | 0 | Worktree setup + upstream sync | git worktree, git fetch/rebase |
 | 1 | Pick issue | gh issue list/view |
 | 1.5 | Get context | Read CLAUDE.md, git log |
-| 2 | Understand & plan | /brb-architectobot |
-| 2.5 | Deep audit | /brb-architectobot / explore agent |
-| 3 | Implement | /brb-codecrusher |
-| 4 | Verify acceptance criteria | /brb-architectobot |
+| 2 | Understand & plan | /brb-architectobot (**Sonnet**) |
+| 2.5 | Deep audit (skip for obvious bugs) | Sonnet, only when needed |
+| 3 | Implement | /brb-codecrusher (**Opus**) |
+| 4 | Verify | Cross-checks only (+ Sonnet if 4+ acceptance criteria) |
 | 5 | Run checks | /brb-cross-check |
 | 6 | Update memory | /brb-memory-keeper |
 | 7 | Commit | git add, git commit |
 | 8 | Merge default branch | git fetch/merge |
 | 9 | Push & draft PR | git push, gh pr create --draft |
 | 10 | PR review cycle | comments + CI + conflicts loop |
-| 11 | Mark ready (**ask user**) | gh pr ready |
-| 12 | Worktree cleanup (**ask user**) | git worktree remove |
+| 11 | Mark ready (10-min timeout, auto in autonomous) | gh pr ready |
+| 12 | Worktree cleanup (**ask user**, auto-clean builds after 10 min) | git worktree remove |

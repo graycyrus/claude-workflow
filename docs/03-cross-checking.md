@@ -32,21 +32,15 @@ Runs Prettier (or your project's formatter) in check mode. If it fails:
 
 Then re-run the check to confirm.
 
-### 4. Build
+### 4. Build (frontend only — skip full Rust builds)
 
 ```bash
 <pkg> run build
 ```
 
-Produces the production build. Must complete without errors.
+Produces the production frontend build. Must complete without errors.
 
-### 5. App launch (if applicable)
-
-If the project has a desktop app or dev server, launch it and verify:
-- App/server starts without crash
-- No errors in terminal output
-- Core functionality works
-- No CORS or RPC errors in console
+**Do NOT run `cargo build`** — it's slow, eats disk, and `cargo check` already catches compile errors. Only run `cargo build` if explicitly asked by the user or if the task specifically requires a binary artifact.
 
 ### 6. Grep for completeness
 
@@ -58,12 +52,14 @@ grep -rn 'pattern' src/ --include='*.ts' --include='*.tsx' | grep -v node_module
 
 Empty output = all clear.
 
-### 7. Rust checks (if Cargo.toml exists)
+### 6. Rust checks (if Cargo.toml exists)
 
 ```bash
 cargo fmt --all --check
 cargo check
 ```
+
+**Do NOT run `cargo build`** — `cargo check` catches all compile errors without producing binaries. `cargo build` is slow, eats 5-15GB of disk per worktree, and adds no value for verification.
 
 ### 8. Python checks (if pyproject.toml or setup.py exists)
 
