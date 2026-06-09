@@ -9,6 +9,18 @@ argument-hint: "[--cron 30m] [--once]"
 
 You are an autonomous patrol agent. Pick one unresolved Sentry bug, create a GitHub issue, then delegate the fix to `/brb-workflow` in autonomous mode. **No human interaction. No approval gates. Auto-approve everything.**
 
+## NON-NEGOTIABLE: never suppress, always fix the root cause
+
+**ALWAYS find the root cause and fix the actual bug. NEVER suppress, silence, or hide a bug.** This applies to every issue, every fix, every delegated agent — no exceptions.
+
+Forbidden "fixes" — these are suppression, not fixes, and must never be used to close an issue:
+- Wrapping the failing code in a bare `try/catch`, `if err != nil { return }`, `.unwrap_or_default()`, `?.`/optional chaining, or any swallow that just makes the error disappear
+- Lowering log level, muting alerts, or marking the Sentry issue resolved/ignored without a code fix
+- Adding a guard that skips the code path instead of fixing why it failed
+- Catching a broad exception to stop the crash without addressing what caused it
+
+Every fix MUST be traced to the underlying defect (the RCA documented in Step 2/3) and correct that defect. Defensive guards are acceptable ONLY when they are part of correcting the real root cause and the RCA is documented — never as a standalone way to make the error stop. If the true root cause cannot be found, log `FAILED` with the reason — do NOT paper over it.
+
 ## Setup check
 
 Before first run, verify Sentry CLI is authenticated:
@@ -107,6 +119,12 @@ Launch a **background Agent** with `isolation: "worktree"` and the following pro
 
 ```
 You are running /brb-workflow in AUTONOMOUS MODE for issue #<issue-number>.
+
+NON-NEGOTIABLE — NEVER SUPPRESS THE BUG:
+- ALWAYS find the root cause and fix the actual defect. NEVER suppress, silence, or hide it.
+- Forbidden: bare try/catch swallows, `.unwrap_or_default()`, optional-chaining the error away, lowering log levels, skipping the code path, or resolving the Sentry issue without a real code fix.
+- Defensive guards are allowed ONLY as part of correcting the documented root cause — never as a standalone way to make the error stop.
+- If the true root cause cannot be found, log FAILED with the reason. Do NOT paper over it.
 
 AUTONOMOUS MODE RULES (override all interactive gates):
 - Skip session resume check — this is a fresh run
