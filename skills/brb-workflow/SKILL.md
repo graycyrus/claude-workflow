@@ -2,12 +2,25 @@
 name: brb-workflow
 description: Full AI-assisted development workflow — from issue discovery to merged PR. Orchestrates worktree setup, planning, implementation, cross-checking, and PR review cycles.
 allowed-tools: Bash(git *) Bash(gh *) Bash(pnpm *) Bash(npm *) Bash(yarn *) Bash(bun *) Bash(cargo *) Bash(node *) Agent(*)
-argument-hint: "[issue-number]"
+argument-hint: "[issue-number | issue description] [--auto]"
 ---
 
 # Full Workflow: Start to End
 
-You are running an AI-assisted development workflow. Follow every step in order. Do NOT skip steps. Ask the user when instructed to ask.
+You are running an AI-assisted development workflow. Follow every step in order. Do NOT skip steps. Ask the user when instructed to ask — **unless autonomous mode is on** (see below).
+
+## Arguments & modes
+
+Parse `$ARGUMENTS` before doing anything else:
+
+- **`--auto` flag** → **Autonomous (YOLO) mode**. If `--auto` appears anywhere in the arguments, strip it out and set `AUTO=1`. In this mode you **never ask the user anything** — you make every decision yourself using sensible defaults and keep going to the end. Every step below marked **(ASK USER)** or "STOP and ask" is instead resolved automatically (the default action for each is noted inline). Strip `--auto` from the arguments before interpreting the rest.
+
+- **Issue input** → whatever remains after removing `--auto`:
+  - If it is **purely a number** (e.g. `123` or `#123`) → treat it as a **GitHub issue number**. Fetch it from GitHub as described in Step 1.
+  - If it is **free-text** (a sentence/description, e.g. `add a dark mode toggle to settings`) → treat it as a **direct issue description**. **Skip all GitHub issue fetching/discovery** (Step 1's `gh issue` calls and the "pick an issue" prompts). Use the provided text as the work item and feed it directly to `/brb-architectobot`. There is no issue number in this case — anywhere a step references `<issue-number>` or `Closes #N`, omit it (don't invent a number) and instead describe the work in the PR/commit body.
+  - If it is **empty** → fall back to interactive issue discovery in Step 1 (or, in `AUTO` mode, auto-pick the top candidate).
+
+Throughout: when `AUTO=1`, replace every "STOP and ask" / "ASK USER" instruction with the inline default and proceed without pausing.
 
 ## Environment detection
 
@@ -30,7 +43,7 @@ DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@
 UPSTREAM=$(git remote get-url upstream >/dev/null 2>&1 && echo "upstream" || echo "origin")
 ```
 
-Print these values so the user can confirm. If `REPO` or `GH_USER` are empty, **STOP and ask the user** — they may need to run `gh auth login` or set up the remote.
+Print these values so the user can confirm. If `REPO` or `GH_USER` are empty, **STOP and ask the user** — they may need to run `gh auth login` or set up the remote. (In `AUTO` mode these are hard blockers — without a repo/login the workflow cannot run, so stop and report the failure rather than asking.)
 
 ---
 
@@ -53,6 +66,8 @@ If there are active worktrees or open draft PRs, show them and ask:
 > - Draft PR #456: 'feat: add dark mode toggle'
 >
 > **Resume** one of these, or **start fresh** on a new issue?"
+
+**AUTO mode default:** if a specific issue (number or description) was passed in arguments, ignore unrelated in-progress work and start fresh on the requested item. If no issue was passed and exactly one in-progress item exists, resume it; otherwise start fresh.
 
 If the user wants to resume:
 - `cd` into the worktree
@@ -86,6 +101,8 @@ If NOT on the default branch, **STOP and ask the user**. Show:
 
 **Do NOT silently switch branches.**
 
+**AUTO mode default:** if the current branch is clean (no uncommitted changes), switch to the default branch and continue. If there are uncommitted changes, stash them (`git stash push -u`) before switching. Do not abandon committed work.
+
 ### 0b. Sync with upstream
 
 ```bash
@@ -94,16 +111,30 @@ git rebase $UPSTREAM/$DEFAULT_BRANCH
 git push origin $DEFAULT_BRANCH
 ```
 
-If rebase has conflicts, **STOP and ask the user**.
+If rebase has conflicts, **STOP and ask the user**. (In `AUTO` mode, attempt to resolve them yourself; if they cannot be resolved cleanly, abort the rebase with `git rebase --abort` and continue from the current default-branch state.)
 
-### 0c. Create a worktree
+### 0c. Create a worktree (ASK USER)
+
+**Always ask the user first** whether to create a new worktree:
+
+> "Do you want me to create a **new worktree** for this work, or **work in the current directory** (current branch)?"
+
+- If the user says **yes / new worktree** → set `WORKTREE_CREATED=1` and create it (below).
+- If the user says **no / current directory** → set `WORKTREE_CREATED=0`, skip worktree creation, and do all work on a new branch in the current directory (`git checkout -b <type>/short-description`).
+
+**AUTO mode default:** create a new worktree (`WORKTREE_CREATED=1`).
+
+Track `WORKTREE_CREATED` for the rest of the run — the cleanup step (Step 12) only runs when `WORKTREE_CREATED=1`.
+
+If creating a worktree:
 
 ```bash
 # Save the main repo path before changing directory
 MAIN_REPO=$(pwd)
 
 # Convention: ../<repo-short>-<issue-number>
-WORKTREE_DIR=../$(basename "$MAIN_REPO")-<issue-number>
+# If there is no issue number (direct-description run), use a short slug instead.
+WORKTREE_DIR=../$(basename "$MAIN_REPO")-<issue-number-or-slug>
 git worktree add $WORKTREE_DIR -b <type>/short-description
 
 cd $WORKTREE_DIR
@@ -118,17 +149,25 @@ for f in .env app/.env.local; do [ -f "$MAIN_REPO/$f" ] && cp "$MAIN_REPO/$f" "$
 $PKG install
 ```
 
-All work for this issue happens inside the worktree directory.
+All work for this issue happens inside the worktree directory (or the current directory if no worktree was created).
 
-**Save state**: Remember the issue number, branch name, and worktree path for session resume.
+**Save state**: Remember the issue number (if any), branch name, worktree path, and the `WORKTREE_CREATED` flag for session resume.
 
 ---
 
 ## Step 1: Pick an issue
 
+**First check what was parsed from the arguments (see "Arguments & modes" at the top):**
+
+- **Direct issue description was given** (free-text, not a number) → **skip this entire step**. Do not run any `gh issue` commands and do not prompt for issue selection. There is no issue number; carry the description forward as the work item to Step 2.
+- **Issue number was given** → fetch it: `gh issue view <number> --repo $REPO` and continue to Step 1.5.
+- **Nothing was given** → discover an issue below.
+
 If `$ARGUMENTS` contains an issue number, use that. Otherwise ask the user:
 
 > "Do you want to work on one of **your assigned issues**, or **pick an unassigned one**?"
+
+**AUTO mode default:** skip the question — go straight to Option B (discover unassigned) and auto-pick the top candidate after filtering, then self-assign.
 
 ### Option A — Assigned issues
 
@@ -168,9 +207,13 @@ git log --oneline -20
 
 ## Step 2: Understand with /brb-architectobot
 
-Run `/brb-architectobot <issue-number>` to read the issue, explore the codebase, and produce an implementation plan.
+Run `/brb-architectobot` to explore the codebase and produce an implementation plan:
+- If you have an **issue number** → `/brb-architectobot <issue-number>`.
+- If you have a **direct issue description** → pass the description text instead of a number so the architect plans directly from it (no GitHub fetch).
 
 The plan must be **explicitly approved by the user** before moving to implementation.
+
+**AUTO mode default:** do not wait for approval — accept the plan (after the Step 2.5 deep audit revises it) and proceed to implementation.
 
 ---
 
@@ -185,7 +228,7 @@ Before user approval, run a deep audit:
 5. Test references that might break?
 6. Side effects on mount/unmount?
 
-Revise the plan based on findings. Present the revised plan to the user for approval.
+Revise the plan based on findings. Present the revised plan to the user for approval. (In `AUTO` mode, skip approval — proceed straight to implementation with the revised plan.)
 
 ---
 
@@ -197,7 +240,7 @@ Run `/brb-codecrusher` to write code per the approved plan.
 
 ## Step 4: Verify with /brb-architectobot
 
-Run `/brb-architectobot <issue-number>` again, this time asking it to verify every acceptance criterion from the issue is met end-to-end.
+Run `/brb-architectobot` again (with the issue number, or the description if no number), this time asking it to verify every acceptance criterion is met end-to-end.
 
 Fix anything flagged.
 
@@ -240,6 +283,8 @@ Closes #N"
 
 Stage specific files only — never `git add -A`.
 
+If there is **no issue number** (direct-description run), omit the `Closes #N` line and instead summarize the change in the body.
+
 ---
 
 ## Step 8: Merge default branch and resolve conflicts
@@ -275,6 +320,8 @@ gh pr create --repo $REPO --base $DEFAULT_BRANCH --draft \
 
 Closes #<issue-number>"
 ```
+
+If there is **no issue number** (direct-description run), omit the `Closes #<issue-number>` line.
 
 **Save state**: Remember the PR number and URL for session resume.
 
@@ -330,11 +377,15 @@ After the review cycle is complete, **ask the user**:
 
 If yes: `gh pr ready <N> --repo $REPO`
 
+**AUTO mode default:** mark the PR ready automatically (`gh pr ready <N> --repo $REPO`).
+
 ---
 
-## Step 12: Worktree cleanup (ASK USER)
+## Step 12: Worktree cleanup (conditional — ASK USER)
 
-**Ask the user** whether to clean up:
+**Only run this step if `WORKTREE_CREATED=1`** (a worktree was actually created in Step 0c). If no worktree was created (work was done in the current directory), **skip this step entirely** — there is nothing to clean up.
+
+If a worktree was created, **ask the user** whether to clean up:
 
 > "Do you want me to remove the worktree, or keep it?"
 
@@ -344,3 +395,5 @@ cd $MAIN_REPO
 git worktree remove $WORKTREE_DIR
 git branch -d <branch-name>  # use -D if the branch was not yet merged
 ```
+
+**AUTO mode default:** remove the worktree and delete the branch (only when `WORKTREE_CREATED=1`).
